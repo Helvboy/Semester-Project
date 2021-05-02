@@ -34,18 +34,21 @@ from skan import Skeleton
 from scipy.sparse import csr_matrix
 
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Function to load data 
+def load_data(plot = True):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Function to load data 
 
-Input:  nodes
+    Input:  
+        nodes
         density
         elements
     
-Output: nodes_np
+    Output: 
+        nodes_np
         density_np
         elements_np
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-def load_data(plot = True):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
     nodes_np = np.loadtxt( path_data + 'nodes.dat' )
     if plot:
         print("nodes_load")
@@ -63,16 +66,17 @@ def load_data(plot = True):
     return nodes_np, density_np, elements_np
 
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Transform voxels ( points ) into a space defined by a grid 
-
-Input:  list of densities of the elements
-        list of index of vertices that composed each voxels
-        list of the voxels coordinates ()
-        
-Output: results(np.array)
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 def voxels_2_grid(density, elements):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Transform voxels ( points ) into a space defined by a grid 
+    
+    Input:  list of densities of the elements
+            list of index of vertices that composed each voxels
+            list of the voxels coordinates ()
+            
+    Output: results(np.array)
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
     results = np.zeros((142,71))
     
     for i in range(142):
@@ -84,31 +88,34 @@ def voxels_2_grid(density, elements):
     return results
 
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Binarize a matrice with a half threshold
 
-Input:  np.matrice
-
-Output: np.matrice
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 def binarization(data):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Binarize a matrice with a half threshold
+    
+    Input:  np.matrice
+    
+    Output: np.matrice
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     
     results = np.where(data > np.max(data)/2, 255, 0 )
     
     return results
 
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Deduce the skeleton of a binarize image
 
-Input:  grid(np.array): string - path of the folder where to store file
-        method(int):    0 - use skeletonize_3D from skimage.morphology
-                        1 - use medial_axis from skimage.morphology
-        plot(bool):     True (Default), plot all results / False, unplot all
-        
-Output: img_skel(np.array)
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 def skeletonization(grid, method = 0, plot = True):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Deduce the skeleton of a binarize image
+    
+    Input:  grid(np.array): string - path of the folder where to store file
+            method(int):    0 - use skeletonize_3D from skimage.morphology
+                            1 - use medial_axis from skimage.morphology
+            plot(bool):     True (Default), plot all results / False, unplot all
+            
+    Output: img_skel(np.array)
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
     distance = None
     
     if method == 0:
@@ -133,14 +140,16 @@ def skeletonization(grid, method = 0, plot = True):
     return img_skel.astype('uint8'), distance
 
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Binarize a matrice with a half threshold
 
-Input:  path_data(string):  path of the folder where to store file
-        data(np.array):
-        namespace():        globals()
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 def export_data_vtr(path_data, data, namespace):
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Expport data from a numpy format to a vtr format
+    
+    Input:  path_data(string):  path of the folder where to store file
+            data(np.array):
+            namespace():        globals()
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
     # use for the name of the file
     name_file = [name for name in namespace if namespace[name] is data]
     
@@ -167,7 +176,7 @@ def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):
     graph, coordinates, degrees = skeleton_to_csgraph(skeleton)
     graph_mat  = csr_matrix.toarray(graph)
     
-    #coordinates - coordinates in the matrix
+    #coordinates -skeleton coordinates [matrix]
 
     
     #create an object of class Skeleton to get all stuff cool
@@ -175,6 +184,7 @@ def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):
     paths = csr_matrix.toarray(data_skeleton.paths).astype(int)
     nb_path = len(paths)
     
+    ##############################################
     #1. Find end and joint points
     #2. Find index end and joint points    
     ky_pts, ky_pts_id = skf.key_points_deduction(coordinates, degrees)
@@ -185,32 +195,19 @@ def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):
     links = skf.key_points_relation(paths, ky_pts_id)
 
     ##############################################
-#4. moyenne width 1 segment
+#4. manage the complexity and the width of each segment
     
     new_links, path_width = skf.complexity_control_2(paths, coordinates,
                                                      graph_mat, dist, cmplx_coef)
 
-
-
-
-    dist_links = data_skeleton.path_lengths()
-    
-
-
-    '''
-    
-    distance
-    
-    '''
-
     links = new_links
-    print(links)
+    #print(links)
 
     if plot:
         print("here is the analaysis\n")
         
         #plot skeleton
-        plt.scatter(coordinates[:,0], coordinates[:,1] )
+        #plt.scatter(coordinates[:,0], coordinates[:,1] )
         
         #plot point
         plt.scatter(end_pts[:,0], end_pts[:,1] )
@@ -218,8 +215,7 @@ def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):
         
         #plot the each link
         for i in range(len(links)):
-            print(i)
-            
+
             plt.plot(coordinates[links[i],0],
                      coordinates[links[i],1],
                      linewidth = (path_width[i]) )
@@ -238,17 +234,14 @@ def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):
 
 
 def experimentation(skeleton, plot = True):
-    
     g0, c0, d0 = skeleton_to_csgraph(_testdata.skeleton0)
     g1, c1, _  = skeleton_to_csgraph(_testdata.skeleton1)
-    
     if plot:
         fig, axes = plt.subplots(1, 2)
         draw.overlay_skeleton_networkx(g0, c0, image=_testdata.skeleton0,
                                         axis=axes[0])
         draw.overlay_skeleton_networkx(g1, c1, image=_testdata.skeleton1,
                                         axis=axes[1])
-    
     g0 = csr_matrix.toarray(g0)
     return g0, c0, d0
     
