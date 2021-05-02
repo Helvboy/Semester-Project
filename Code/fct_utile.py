@@ -54,49 +54,8 @@ def medium_width( dist, data_path):
 
 
 
-
-
-
 ##############################################################################
-
-''' Find all the pts of a path
-
-input:
-    rlt_mat [N+1,N+1] using index
-    links [P,2] using index
-    paths = list indice
-
- '''
-def path_2_pts( rlt_mat, links, path = 0):
-    
-    path_pts = []
-    next_pt = links[path,0]
-    
-    while next_pt != links[path,1]:
-        
-        next_pt
-    
-    return path_pts
-
-def vite(density, elements):
-    results = np.zeros((142,71))
-    
-    for i in range(142):
-        for j in range(71):
-            ind = i+j*142
-            
-            results[i,j] = density[ind]
-            
-    return results
-
-###
-
-def array_2_csv(data):
-    #nodes = where
-    print( "not finished yet")
-    
-
- 
+     
 if __name__ == '__main__':
     print('fct_utile executed')
     

@@ -87,8 +87,6 @@ def key_points_relation(paths, ky_pts_id):
 '''
 def complexity_control_2( paths, coordinates, graph_mat, dist, cmplx_coef = 1):
     
-    
-    
     nb_path = len(paths)
     
     path_width = np.zeros(nb_path).astype(int)
@@ -100,38 +98,43 @@ def complexity_control_2( paths, coordinates, graph_mat, dist, cmplx_coef = 1):
         path_pts_id = np.where(paths[n])
         path_pts    = coordinates[path_pts_id].astype(int)
     
+        # define a little matrix of the relation  
         graph_mat_path = graph_mat.transpose()[path_pts_id].transpose()[path_pts_id]
         
-        sort_id = sort_path_pt(graph_mat_path)
+        #id du graph /!\
+        sort_id          = sort_path_pt(graph_mat_path)
         path_pts_sort_id = np.asarray(path_pts_id[0])[sort_id]
         path_pts_sort    = path_pts[sort_id]
         
 
         ############################## fct segment #########################
-
-        path_ky_pts_id_new = path_segmentation(graph_mat_path, path_pts_sort_id, cmplx_coef)
+        # give the list of the new key pts and the index it cooresponds in
+        # the list "path_pts_sort_id"
+        path_ky_pts_id_new, index = path_segmentation(graph_mat_path,
+                                                      path_pts_sort_id,
+                                                      cmplx_coef)
+        pts_id_new = np.append(pts_id_new, path_ky_pts_id_new)
 
         ############################## fct segment#########################
         
-        path_width[n] = medium_width( dist, path_pts)
         for i in range(cmplx_coef+1):
-            path_width_test[n*(cmplx_coef+1)+i] = path_width[n]
-            
-        pts_id_new = np.append(pts_id_new, path_ky_pts_id_new)
-        
-
-        #path_width_test[n] = medium_width( dist, path_pts)
+            path_width_test[n*(cmplx_coef+1)+i] \
+                = medium_width( dist,path_pts_sort[index[i]:index[i+1]])
             
         
     return pts_id_new.reshape(-1,2).astype(int), path_width_test
 
-def tempo():
+def tempo_a_degager_apre():
         for ends in path_ky_pts_id_new:
             #path_pts_seg = coordinates[ends[0]:ends[1]]
             
             path_width[n] = skf.medium_width( dist, path_pts)
             
-            
+            #path_width[n] = medium_width( dist, path_pts)
+        for i in range(cmplx_coef+1):
+            #path_width_test[n*(cmplx_coef+1)+i] = path_width[n]
+            path_width_test[n*(cmplx_coef+1)+i] = medium_width( dist,path_pts_sort[index[i]:index[i+1]])
+          
             
             
             ky_pts_id_new
@@ -233,19 +236,27 @@ def path_segmentation(graph_mat_path, sort_id, cmplx_coef):
         step = nb/(cmplx_coef+1)
     
         path_ky_pts_id_new = []
+        index = []
         
         i = 0
         while i + step < (nb-1):
             
+            index = np.append(index, int(i))
             path_ky_pts_id_new = np.append(path_ky_pts_id_new,
-                                           np.array([sort_id[int(i)], sort_id[int(i+step)] ]) )
+                                           np.array([sort_id[int(i)],
+                                                     sort_id[int(i+step)] ]) )
+            
             
             i = i + step
             
+        index = np.append(index, i)
         path_ky_pts_id_new = np.append(path_ky_pts_id_new,
-                                       np.array([sort_id[int(i)], sort_id[-1] ]) ).astype(int)
+                                       np.array([sort_id[int(i)],
+                                                 sort_id[-1] ]) )
+        index = np.append(index, nb-1)
+
     
-        return path_ky_pts_id_new.reshape(-1,2)
+        return path_ky_pts_id_new.reshape(-1,2).astype(int), index.astype(int)
 # sort les id des extremités des sub-paths du main path
 
 if __name__ == '__main__':

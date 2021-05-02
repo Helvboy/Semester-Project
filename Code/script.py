@@ -36,12 +36,19 @@ grid = voxels_2_grid(density_np, elements_np)
 
 bin_grid = binarization(grid)
 
-skeleton, dist = skeletonization(bin_grid, method = 1, plot = False)
+method = 1
+skeleton, dist = skeletonization(bin_grid, method, plot = False)
+
+if method != 1:
+    print("only medial axis transform give dist, without it, impossible to deduce"
+           "the width of each segment")
 
 print("###########################")
 #plt.figure(2)
-coordinates, end_pts, inter_pts = skeleton_analysis(skeleton, dist, 0, True)
-#soortir graph aussi
+
+cmplx_coef = 5
+coordinates, end_pts, inter_pts = skeleton_analysis(skeleton, dist, cmplx_coef, True)
+#sortir graph aussi
 
 #step
 #1. trouver ends et jnts
@@ -52,18 +59,7 @@ coordinates, end_pts, inter_pts = skeleton_analysis(skeleton, dist, 0, True)
 #5. chose several intermediate ptn
 
 
-# links, intermediaire point  = complexity_control( graph, coordinate, end_pt, inter)
-
-
-
-# plt.scatter(end_pt[:,0], end_pt[:,1] )
-# plt.scatter(inter[:,0], inter[:,1] )
-
-
 print("-----------------")
-
-g0, c0, d0 = experimentation(skeleton, False)
-
 
 print("###########################")
 
