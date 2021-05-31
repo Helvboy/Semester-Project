@@ -14,9 +14,21 @@ def print_info(data, namespace ):
     print(np.shape(data),'\n')
 
 
-''' pts et coordinates = array [Nx2]'''
+
 def coord_2_id( pts, coordinates):
+    '''
+    Find the id of the point in the coordinates matrix ( for 2 points )
+    P is the number of points to manage
+    N is the number of skeleton's points
     
+    input:
+        pts (np.ndarray): [P x 2]
+        coordinates (np.ndarray): [N x 2]
+
+    output:
+        pt_id (np.ndarray): [P x 1]
+    '''
+
     pt_id = []
     
     for i in range(len(pts)):
@@ -34,32 +46,35 @@ def coord_2_id( pts, coordinates):
         #Import to add the "+1" to have the id and not the index
         pt_id = np.append(pt_id, temp1[0,x]+1 )
     
-    
     return pt_id.astype(int)
 
 
-'''
-Calculate the mean of the distance 
-input:
-    matrice dist with all the dist from th boudaries (like an image)
-    data_path [Nx2]: list of coordinates of all the point of a path
-'''
 def medium_width( dist, data_path):
+    '''
+    Calculate the mean of the path width
+    L - Length of the image
+    H - Height of the image
+    N is the number of skeleton's points
+    
+    input:
+        dist (np.ndarray): [L x H]
+        data_path (np.ndarray): [N x 2]
+        matrice dist with all the dist from the boudaries (like an image)
+        data_path [Nx2]: list of coordinates of all the point of a path
+        
+    output:
+        width_mean (float): 
+    '''
     
     width_mean = np.mean(dist[data_path[:,0], data_path[:,1]])
     
     return width_mean
 
 
-
-
-
-##############################################################################
-     
 if __name__ == '__main__':
     print('fct_utile executed')
-    
-    
+
+##############################################################################
         
 ''' Take mesh data to transform them into a pixelized image
     Nodes:

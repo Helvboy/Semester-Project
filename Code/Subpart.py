@@ -19,22 +19,23 @@ path_code = path_g + 'Code/'
 
 #important to import file that are not here
 sys.path.append(os.path.abspath(path_code))
-#sys.path.append( path_code ) 'works too, let it there in case' 
+#sys.path.append( path_code ) 'works too, let it there in case'
+
 from fct_utile import *
-#from skeleton_analysis_functions import *
+
+ 
 import skeleton_analysis_functions as skf
 
 from matplotlib import pyplot as plt
 
 from skimage.morphology import medial_axis, skeletonize_3d
 
-from skan import skeleton_to_csgraph, draw, _testdata
 from skan import Skeleton
 
 from scipy.sparse import csr_matrix
 
 
-def load_data(plot = True):
+def load_data_old(file_name, plot = True):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Function to load data 
 
@@ -57,7 +58,7 @@ def load_data(plot = True):
     if plot:
         print("density_load")
     
-    elements_np = np.loadtxt( path_data + 'elements.dat' )
+    elements_np = np.loadtxt( path_data + 'elements.dat' ).astype(int)
     if plot:
         print("elements_load \n")
     
@@ -66,30 +67,7 @@ def load_data(plot = True):
     return nodes_np, density_np, elements_np
 
 
-def voxels_2_grid(density, elements):
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Transform voxels ( points ) into a space defined by a grid 
-    
-    Input:  list of densities of the elements
-            list of index of vertices that composed each voxels
-            list of the voxels coordinates ()
-            
-    Output: results(np.array)
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    
-    results = np.zeros((142,71))
-    
-    for i in range(142):
-        for j in range(71):
-            ind = i+j*142
-            
-            results[i,j] = density[ind]
-            
-    return results
-
-
-
-def binarization(data):
+def binarization(data, inverse = False, plot = False):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Binarize a matrice with a half threshold
     
@@ -97,14 +75,20 @@ def binarization(data):
     
     Output: np.matrice
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    if inverse == True:
+        results = np.where(data > np.max(data)/2, 0, 255 )
+    else:
+        results = np.where(data > np.max(data)/2, 255, 0 )
     
-    results = np.where(data > np.max(data)/2, 255, 0 )
+    
+    if plot:
+        plt.matshow(results)
     
     return results
 
 
 
-def skeletonization(grid, method = 0, plot = True):
+def skeletonization(grid, method = 0, plot = False):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Deduce the skeleton of a binarize image
     
@@ -115,31 +99,33 @@ def skeletonization(grid, method = 0, plot = True):
             
     Output: img_skel(np.array)
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
     distance = None
+    dist = False
     
     if method == 0:
         img_skel = skeletonize_3d(grid)
         
-        img = True
-        dist = False
         
     elif method == 1:
         img_skel, distance = medial_axis(grid, return_distance=True)
         
-        img = True
         dist = True
             
     
-    if (plot & img):
+    if (plot):
         plt.imshow(img_skel)
         
-    if (plot & dist):   
+    if (plot & dist):
         plt.imshow(distance)
         
     return img_skel.astype('uint8'), distance
 
 
+
+
+############################################################################## effacer
+
+############################################################################## 
 
 def export_data_vtr(path_data, data, namespace):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -167,92 +153,6 @@ def export_data_vtr(path_data, data, namespace):
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #######################################################################
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-    
-
-def skeleton_analysis(skeleton, dist, cmplx_coef, plot = True):    
-    # extraction of informations
-    graph, coordinates, degrees = skeleton_to_csgraph(skeleton)
-    graph_mat  = csr_matrix.toarray(graph)
-    
-    #coordinates -skeleton coordinates [matrix]
-
-    
-    #create an object of class Skeleton to get all stuff cool
-    data_skeleton = Skeleton(skeleton)
-    paths = csr_matrix.toarray(data_skeleton.paths).astype(int)
-    nb_path = len(paths)
-    
-    ##############################################
-    #1. Find end and joint points
-    #2. Find index end and joint points    
-    ky_pts, ky_pts_id = skf.key_points_deduction(coordinates, degrees)
-    ky_pts, ky_pts_id, end_pts, inter_pts, id_end_pts, id_inter_pts = skf.key_points_deduction(coordinates, degrees, True)
-
-    #3. Find relations between key points (end et joint points)   
-    #give the index of the pt couple (first case = complexity 0)
-    links = skf.key_points_relation(paths, ky_pts_id)
-
-    ##############################################
-#4. manage the complexity and the width of each segment
-    
-    new_links, path_width = skf.complexity_control_2(paths, coordinates,
-                                                     graph_mat, dist, cmplx_coef)
-
-    links = new_links
-    #print(links)
-
-    if plot:
-        print("here is the analaysis\n")
-        
-        #plot skeleton
-        #plt.scatter(coordinates[:,0], coordinates[:,1] )
-        
-        #plot point
-        plt.scatter(end_pts[:,0], end_pts[:,1] )
-        plt.scatter(inter_pts[:,0], inter_pts[:,1] )
-        
-        #plot the each link
-        for i in range(len(links)):
-
-            plt.plot(coordinates[links[i],0],
-                     coordinates[links[i],1],
-                     linewidth = (path_width[i]) )
-
-            
-
-# plot the graph of the systeme
-    if 0:
-        plt.figure(3)
-        pxl_g1, coordinates1, degrees1 = skeleton_to_csgraph(skeleton)
-        draw.overlay_skeleton_networkx(pxl_g1, coordinates1, image=skeleton)
-    
-    
-    return coordinates, end_pts, inter_pts
-
-
-
-def experimentation(skeleton, plot = True):
-    g0, c0, d0 = skeleton_to_csgraph(_testdata.skeleton0)
-    g1, c1, _  = skeleton_to_csgraph(_testdata.skeleton1)
-    if plot:
-        fig, axes = plt.subplots(1, 2)
-        draw.overlay_skeleton_networkx(g0, c0, image=_testdata.skeleton0,
-                                        axis=axes[0])
-        draw.overlay_skeleton_networkx(g1, c1, image=_testdata.skeleton1,
-                                        axis=axes[1])
-    g0 = csr_matrix.toarray(g0)
-    return g0, c0, d0
-    
-    # g0, c0, _ = skeleton_to_csgraph(skeleton)
-    # fig, axes = plt.subplots(1, 2)
-
-    # draw.overlay_skeleton_networkx(g0, c0, image = skeleton, axis=axes[0])
-
-
-
-##############################################################################
 
 # read nodes.dat to a list of lists
 #nodes = [i.strip().split() for i in open(path_data + "nodes.dat").readlines()]
