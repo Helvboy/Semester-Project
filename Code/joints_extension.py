@@ -8,46 +8,53 @@ Created on Sun May 23 12:07:38 2021
 import numpy as np
 
 
-def joints_correction(links_coor, links, widths):
-    '''
+def joints_correction(links_coor, links, widths, display= False, plot = False):
+    """
     Extend the elements ends of a structure in order to improve the connection
     between them
     
-    E - number of elements 
+    E - number of elements
+    
     D - number of dimensions 
 
     Parameters
     ----------
-    links_coor : (np.ndarray)
-        [E x D*2] - Array containing the coordinates of each element end 
-    links : (np.ndarray)
-        [E x 2] - Indices of the elements end points 
-    widths : (np.ndarray)
-        [E x 1] - Width of each element 
+    links_coor : np.ndarray of int
+        [Ex(D*2)] - Array containing the coordinates of each element end 
+    links : np.ndarray of int
+        [Ex2] - Indices of the elements end points 
+    widths : np.ndarray of float
+        [Ex1] - Width of each element
+    display: Bool, optionnal
+        Display message or not. The default is False.
+    plot: Bool, optionnal
+        Plot the state of the process or not. The default is False.
 
     Returns
     -------
-    links_coor_ext : (np.ndarray)
-        [E x D*2] - a version of link_coor with some points modified 
+    links_coor_ext : np.ndarray of float
+        [Ex(D*2)] - a version of link_coor with some points modified in the order
+        to improve the connectivity
 
-    '''
-        
-    # give indices of the points which have to be modified with the path
+    """
+    # gives indices of the points which have to be modified with the path
     # to which it belongs
     joint_pts_id, paths_invlv = intersection_finder(links)
     
-    # determine how long the path should be extended with indices of the paths
+    # determines how long the path should be extended with indices of the paths
     ext_dist, path_2_ext = width_comparator( paths_invlv, widths)
     
-    # give back the new link_coor with the modified points
+    # gives back the new link_coor with the modified points
     links_coor_ext = new_points_generator(links_coor, links, ext_dist,
                                           path_2_ext, joint_pts_id)    
     
+    if display:
+        print("Extension done\n")
     return links_coor_ext
     
 
 def intersection_finder(links):
-    '''
+    """
     Deduce the points which belong to two or more paths and give also the paths
     involved for each points
     
@@ -56,18 +63,17 @@ def intersection_finder(links):
     
     Parameters
     ----------
-    links : (np.ndarray)
-        [E x 2] - Indices of the elements end points 
+    links : np.ndarray of int
+        [Ex2] - Indices of the elements end points 
 
     Returns
     -------
     pts_inter : list of int
         [Nj] - Array with the indices of the joint points 
-    paths_invlv : list of (np.ndarray)
+    paths_invlv : list of np.ndarray
         [Nj] - list containing the pats indices where the point belongs 
 
-    '''
-    
+    """
     pts = np.unique(links)
     
     pts_inter = []
@@ -80,12 +86,11 @@ def intersection_finder(links):
             pts_inter.append(pt)
             paths_invlv.append(concern_paths)
     
-    
     return pts_inter, paths_invlv
 
 
 def width_comparator( paths_invlv, widths):
-    '''
+    """
     Compare the widths of each paths and select the path with the bigger width
     to extend by the 2nd bigger width
     
@@ -94,10 +99,10 @@ def width_comparator( paths_invlv, widths):
 
     Parameters
     ----------
-    paths_invlv : list of (np.ndarray)
+    paths_invlv : list of np.ndarray
         [Nj] - list containing the pats indices where the point belongs 
-    widths : (np.ndarray)
-        [E x 1] - Array with the distance of each path 
+    widths : np.ndarray of float
+        [Ex1] - Array with the distance of each path 
 
     Returns
     -------
@@ -106,7 +111,7 @@ def width_comparator( paths_invlv, widths):
     path_2_ext : list of int
         [Nj] - list containing the indices of the path to extend 
 
-    '''
+    """
     
     path_2_ext = []
     ext_dist = []
@@ -123,33 +128,35 @@ def width_comparator( paths_invlv, widths):
 
 
 def new_points_generator(links_coor, links, ext_dist, path_2_ext, inter_pts_id):
-    '''
+    """
     From the given informations, modified links_coor by changing the coordinates
     of elements the end points which have to be extend by the ext_dist 
     
-    Nj - number of joint points 
-    E  - number of elements 
+    Nj - number of joint points
+    
+    E  - number of elements
+    
     D  - number of dimensions 
 
     Parameters
     ----------
-    links_coor : (np.ndarray)
-        [E x D*2] - Array containing the coordinates of each element end 
-    links : (np.ndarray)
-        [E x 2] - Indices of the elements end points 
-    ext_dist : list
+    links_coor : np.ndarray of float
+        [ExD*2] - Array containing the coordinates of each element end 
+    links : np.ndarray of int
+        [Ex2] - Indices of the elements end points 
+    ext_dist : list of float
         [Nj] - distance extensions to apply to each concerned path 
-    path_2_ext : list 
+    path_2_ext : list of int
         [Nj] - list containing the indices of the path to extend 
     inter_pts_id : list of int
         [Nj] - Array with the indices of the joint points 
     
     Returns
     -------
-    links_coor_ext : (np.ndarray)
-        [E x D*2] - a version of link_coor with some points modified 
+    links_coor_ext : np.ndarray of float
+        [ExD*2] - a version of link_coor with some points modified 
 
-    '''
+    """
     links_coor_ext = np.copy(links_coor)
     
     D = int(links_coor.shape[1]/2)
@@ -165,15 +172,15 @@ def new_points_generator(links_coor, links, ext_dist, path_2_ext, inter_pts_id):
 
 
 def new_ext_coord(link_coor, idx, ext_dist):
-    '''
+    """
     Calculate the new coordinates of a point after being extended 
     
     D - number of dimensions 
 
     Parameters
     ----------
-    link_coor : (np.ndarray)
-        [D*2 x 1] - Coordinates of the 2 end points of the element 
+    link_coor : np.ndarray of float
+        [D*2x1] - Coordinates of the 2 end points of the element 
     idx : int
         indices telling which end points of the element to extend 
     ext_dist : float
@@ -181,11 +188,10 @@ def new_ext_coord(link_coor, idx, ext_dist):
 
     Returns
     -------
-    coord : (np.ndarray)
-        [D x 1] - Coordinates of the new point 
+    coord : np.ndarray of float
+        [Dx1] - Coordinates of the new point 
 
-    '''
-    
+    """
     D = int(link_coor.shape[0]/2)
     
     vect = link_coor[D:] - link_coor[0:D]
@@ -195,7 +201,7 @@ def new_ext_coord(link_coor, idx, ext_dist):
         coord = link_coor[D:]  + ext*0.5
     else:
         coord = link_coor[0:D] - ext*0.5
-    
+        
     return coord
 
         

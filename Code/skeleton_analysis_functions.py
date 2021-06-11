@@ -17,7 +17,7 @@ path_code = path_g + 'Code/'
 sys.path.append(os.path.abspath(path_code))
 #sys.path.append( path_code ) 'works too, let it there in case' 
 
-from fct_utile import coord_2_id, medium_width
+from convertor import coord_2_id
 
 from skan import skeleton_to_csgraph
 from skan import Skeleton
@@ -70,6 +70,7 @@ def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
 
     graph, coordinates, degrees, graph_mat, data_skeleton, paths \
         = skeleton_information(skeleton_corr)
+        
     
     #make a second correction for the pixels stacks
     if corr_fct > 0.03:                                                        # coef to adjust
@@ -93,6 +94,9 @@ def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
     else:
         skeleton = skeleton_corr
     
+    if plot:
+        plt.matshow(skeleton.transpose()[::-1])
+        plt.title("Result of the skeleton cleaning\n")
 
 
     ##############################################
@@ -101,11 +105,13 @@ def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
     #1. Find end and joint points
     #2. Find index end and joint points    
     #ky_pts, ky_pts_id = skf.key_points_deduction(coordinates, degrees)
-    ky_pts, ky_pts_id, end_pts, inter_pts, id_end_pts, id_inter_pts = key_points_deduction(coordinates, degrees, True)
+    
+    # ky_pts, ky_pts_id, end_pts, inter_pts, id_end_pts, id_inter_pts = key_points_deduction(coordinates, degrees, True)
 
     #3. Find relations between key points (end et joint points)   
     #give the index of the pt couple (first case = complexity 0)
-    links = key_points_relation(paths, ky_pts_id)
+    
+    # links = key_points_relation(paths, ky_pts_id)
 
     ##############################################
 #4. manage the complexity and the width of each segment
@@ -116,8 +122,6 @@ def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
     links = new_links
 
     if plot:
-        print("here is the analaysis\n")
-        
         plt.figure(42)
         #plot skeleton
         #plt.scatter(coordinates[:,0], coordinates[:,1] )
@@ -232,7 +236,6 @@ def skeleton_cleaning(paths, coordinates, degrees, skeleton, corr_fct = 0.1):
     return skeleton_corr
 
 
-
 def skeleton_cleaning_compl(paths, coordinates, degrees, skeleton):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Complete a first coorection of the skeleton and its little error.
@@ -295,11 +298,11 @@ def skeleton_cleaning_compl(paths, coordinates, degrees, skeleton):
 
 
 def key_points_deduction(coordinates, degrees, details = False):
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Define the key points of the skeleton which are end points and joints
-    N - number of skeleton's points
-    L - Length of the image
-    H - Height of the image
+    '''
+    Define the key points of the skeleton which are end points and joints 
+    N - number of skeleton's points 
+    L - Length of the image 
+    H - Height of the image 
     K - number of key points
 
     Input:  
@@ -312,7 +315,7 @@ def key_points_deduction(coordinates, degrees, details = False):
         ky_pts_id(np.ndarray): [1 x K]
         
         end_pts, inter_pts, id_end_pts, id_inter_pts (in option)
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''
 
     # Calculate the end-points and intersection points
     end_pts   = np.array(np.where(degrees == 1)).transpose()   
@@ -574,6 +577,35 @@ def path_segmentation(graph_mat_path, sort_id, cmplx_coef):                     
 
         return path_ky_pts_id_new.reshape(-1,2).astype(int), index.astype(int)
 # sort les id des extremités des sub-paths du main path
+
+
+def medium_width( dist, data_path):
+    """
+    Calculate the mean of the path width
+    
+    L - Length of the image
+    
+    H - Height of the image
+    
+    N is the number of skeleton's points
+
+    Parameters
+    ----------
+    dist : np.ndarray of float
+        [LxH] - array of all the dist from the boudaries (like an image)
+    data_path : np.ndarray of int
+        [Nx2] - list of coordinates of all the point of a path
+
+    Returns
+    -------
+    width_mean : float
+        the mean of all the width along the studied segment
+
+    """  
+    width_mean = np.mean(dist[data_path[:,0], data_path[:,1]])
+    
+    return width_mean
+
 
 if __name__ == '__main__':
     print('skeleton_analysis_functions executed')
