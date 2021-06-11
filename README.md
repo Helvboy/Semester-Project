@@ -1,4 +1,4 @@
-# Feature_extractor
+# Features_extractor
 
 Feature_extractor is a Python script for dealing with a meshed or differently defined geometry and get its features.
 
