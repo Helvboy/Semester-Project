@@ -28,22 +28,8 @@ from joints_extension import joints_correction
 
 from presentation import draw_segment, similarity
 
-##############################################################################
 
-    #resolutionà 0.2 jolie visualisation
-    #error wth 0.27, 0.0704225
-    
-path_input = path_data
-#path_input = path_data + '\prepared images\\struc.png'
-    
-
-
-
-from matplotlib import pyplot as plt
-
-
-
-def features_extractor(path = path_input, resolution=0.0704225, load_mode = "Dflt",
+def features_extractor(path = path_data, resolution=0.0704225, load_mode = "Dflt",
                        inv = False, skl_meth = 1,
                        cmplx_coef = 1, clean_coef = 0.1,
                        display = False, plot = False):
@@ -88,11 +74,11 @@ def features_extractor(path = path_input, resolution=0.0704225, load_mode = "Dfl
     
     """
 
-    grid = load_data( path, load_mode, resolution, display=display)                                                            #print
-
-    bin_grid = binarize(grid, inverse=inv, plot = plot)                          #modify file
+    grid = load_data( path, load_mode, resolution, display=display) 
     
-    skeleton, dist = skeletonize(bin_grid, skl_meth, plot = plot)          #modify file
+    bin_grid = binarize(grid, inverse=inv, plot = plot)      
+    
+    skeleton, dist = skeletonize(bin_grid, skl_meth, plot = plot)
     
     coordinates, links, widths, skeleton_cl \
         = skeleton_analysis(skeleton, dist, cmplx_coef, clean_coef, plot=plot)
@@ -103,22 +89,12 @@ def features_extractor(path = path_input, resolution=0.0704225, load_mode = "Dfl
                                        display=display, plot=plot)
 
     output = draw_segment( links_coor_ext, widths, skeleton.shape,
-                          display=display, plot = plot)                           #devrai etre enlevé 
-    #####
-    # output1 = draw_segment( links_coor, widths, skeleton.shape,
-    #                       display=display, plot = plot)
-    # plt.matshow(output.transpose()[::-1])
-    # plt.title("Result with extension\n")
-
-    # plt.matshow(output1.transpose()[::-1])
-    # plt.title("Result without extension\n")
-    # similarity(grid, output1, display = display)
-
-    ####
+                          display=display, plot = plot)
     
-    similarity(grid, output, display = display)                               #modify file
+    similarity(grid, output, display = display)                               
 
     return links_coor_ext, widths*2
 
 if __name__ == '__main__':
+    features_extractor()
     print('run executed')
