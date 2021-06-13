@@ -13,10 +13,14 @@ def binarize(data, inverse = False, plot = False):
     """
     Binarize an array with a half threshold
 
+    L - Long of the image
+    
+    H - Height of the image
+    
     Parameters
     ----------
     data : np.ndarray of float
-        Data to binarize or inverse.
+        [LxH] - Data to binarize or inverse.
     inverse : Bool, optional
         Indicate if the intensity imported data must be inverted. The default is False.
     plot: Bool, optionnal
@@ -25,19 +29,18 @@ def binarize(data, inverse = False, plot = False):
     Returns
     -------
     results : np.ndarray of float
-        Data binarized with values 0 or 1.
+        [LxH] - Data binarized with values 0 or 1.
 
     """
 
-    plt.matshow(data.transpose()[::-1])
-    plt.title("Raw data\n")
+    # plt.matshow(data.transpose()[::-1])
+    # plt.title("Raw data\n")
                                                               #print
 
     if inverse == True:
         results = np.where(data > np.max(data)/2, 0, 1 )
     else:
         results = np.where(data > np.max(data)/2, 1, 0 )
-    
     
     if plot:
         plt.matshow(results.transpose()[::-1])

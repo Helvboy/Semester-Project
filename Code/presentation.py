@@ -95,7 +95,6 @@ def draw_segment(links_coor, width, dim, display = True, plot = False):
         
         vct_seg = pt_b - pt_a
         vct_seg_n = vct_seg/ np.linalg.norm(vct_seg)
-
         
         for x in range(L):
             for y in range(H):

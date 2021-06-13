@@ -96,5 +96,5 @@ def features_extractor(path = path_data, resolution=0.0704225, load_mode = "Dflt
     return links_coor_ext, widths*2
 
 if __name__ == '__main__':
-    features_extractor()
+    elements_coord, widths = features_extractor()
     print('run executed')
