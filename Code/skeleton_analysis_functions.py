@@ -29,10 +29,32 @@ from scipy.sparse import csr_matrix
 
 ##############################################################################
 
-def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
-    '''
+def skeleton_analysis(skel, dist, cmplx_coef, clean_coef, plot = False):
+    """
     Analyse the skeleton and generate a new simplified skeleton depending of
     the complexity factor
+
+    Parameters
+    ----------
+    skel : np.ndarray of int
+        Array of the skeleton image
+    dist : np.ndarray of float
+        Distance map from the boarder of the binarized image
+    cmplx_coef : int
+        Define the complexity to apply to the skeleton.
+    clean_coef : float, optional
+        Define how much the skeleton should be cleanned.
+    plot : TYPE, optional
+        DESCRIPTION. The default is False.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    '''
+   
     
     Parameters
     ----------
@@ -66,14 +88,14 @@ def skeleton_analysis(skel, dist, cmplx_coef, corr_fct, plot = False):
 
     #make a first correction for all the little useless branches
     skeleton_corr = skeleton_cleaning(paths, coordinates, degrees,
-                                      skeleton, corr_fct)
+                                      skeleton, clean_coef)
 
     graph, coordinates, degrees, graph_mat, data_skeleton, paths \
         = skeleton_information(skeleton_corr)
         
     
     #make a second correction for the pixels stacks
-    if corr_fct > 0.03:                                                        # coef to adjust
+    if clean_coef > 0.03:                                                        # coef to adjust
         skeleton_corr2 = skeleton_cleaning_compl(paths, coordinates,
                                                  degrees, skeleton_corr)
 
