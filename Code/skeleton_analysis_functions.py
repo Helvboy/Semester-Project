@@ -34,46 +34,43 @@ def skeleton_analysis(skel, dist, cmplx_coef, clean_coef, plot = False):
     Analyse the skeleton and generate a new simplified skeleton depending of
     the complexity factor
 
+    L - Long of the image
+    
+    H - Height of the image
+    
+    N - number of points
+    
+    D - number of dimensions 
+ 
+    E - number of elements
+    
+    
     Parameters
     ----------
     skel : np.ndarray of int
-        Array of the skeleton image
+        [LxH] - Array of the skeleton image
     dist : np.ndarray of float
-        Distance map from the boarder of the binarized image
+        [LxH] - Distance map from the boarder of the binarized image
     cmplx_coef : int
         Define the complexity to apply to the skeleton.
     clean_coef : float, optional
         Define how much the skeleton should be cleanned.
-    plot : TYPE, optional
-        DESCRIPTION. The default is False.
+    plot : Bool, optional
+        Plot the different step of the process. The default is False.
 
     Returns
     -------
-    None.
+    coordinates : np.ndarray of float
+        [NxD] - coordinates of points        
+    new_links : np.ndarray of int
+        [Ex2] - indices of the end points of the path
+    path_width : np.ndarray of float
+        [Ex1] - Width of each element
+    skeleton : np.ndarray of int
+        Array of the cleaned skeleton image
 
     """
     
-    '''
-   
-    
-    Parameters
-    ----------
-    skel : np.ndarray
-        DESCRIPTION.
-    dist : np.ndarray
-        DESCRIPTION.
-    cmplx_coef : int
-        DESCRIPTION.
-    corr_fct : TYPE
-        DESCRIPTION.
-    plot : Bool, optional
-        DESCRIPTION. The default is True.
-
-    Returns
-    -------
-    None.
-
-    '''
     skeleton = np.copy(skel)
     # plt.matshow(skeleton)
 

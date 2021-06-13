@@ -61,7 +61,7 @@ def features_extractor(path = path_data, resolution=0.0704225, load_mode = "Dflt
     display : Bool, optional
         Display messages to inform of the step process. The default is False.
     plot : Bool, optional
-        Plot the different step of the process. The default is True.
+        Plot the different step of the process. The default is False.
 
     Returns
     -------
